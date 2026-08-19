@@ -82,12 +82,12 @@ Copy-Item (Join-Path $source 'Start-ServerStatusTray.vbs')  $installDir -Force
 
 # Settings: keep the notification toggles if this is an upgrade.
 $settingsPath = Join-Path $installDir 'settings.json'
-$notifyGY = $false
+$notifyRY = $false
 $notifyYG = $false
 if (Test-Path $settingsPath) {
     try {
         $old = Get-Content $settingsPath -Raw | ConvertFrom-Json
-        if ($null -ne $old.NotifyGreenToYellow) { $notifyGY = [bool] $old.NotifyGreenToYellow }
+        if ($null -ne $old.NotifyRedToYellow)   { $notifyRY = [bool] $old.NotifyRedToYellow }
         if ($null -ne $old.NotifyYellowToGreen) { $notifyYG = [bool] $old.NotifyYellowToGreen }
     }
     catch { }
@@ -98,7 +98,7 @@ if (Test-Path $settingsPath) {
     BusyMinutes         = $BusyMinutes
     IdleMinutes         = $IdleMinutes
     PollSeconds         = $PollSeconds
-    NotifyGreenToYellow = $notifyGY
+    NotifyRedToYellow   = $notifyRY
     NotifyYellowToGreen = $notifyYG
 } | ConvertTo-Json | Set-Content -Path $settingsPath -Encoding UTF8
 

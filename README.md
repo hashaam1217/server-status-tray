@@ -41,10 +41,13 @@ without starting).
 
 Right-click the icon. Two toggles, independently selectable, off by default:
 
-- **Notify on green → yellow** — the server went from free to showing recent
-  input, i.e. somebody has started using it again.
-- **Notify on yellow → green** — the server crossed the idle threshold and is
-  now free.
+- **Notify on red → yellow** — whoever was on it has stopped typing; the server
+  has been quiet for `BusyMinutes`. An early heads-up that it may be freeing up.
+- **Notify on yellow → green** — the server crossed `IdleMinutes` and is now
+  free.
+
+Together they track the natural wind-down: idle time only climbs while nobody
+is at the machine, so a server being released walks red → yellow → green.
 
 The setting is remembered across restarts.
 
@@ -52,10 +55,9 @@ Transitions are compared against the last *known* status, so a momentary
 connection failure (which shows as grey) neither swallows a real change nor
 invents a false one.
 
-> Note: a server going straight from idle to actively used jumps **green →
-> red**, skipping yellow, because a fresh session reports 0 minutes idle. Yellow
-> is normally reached on the way *up* from red. If you want a "someone sat
-> down" alert that fires reliably, a green → red toggle is the one to add.
+> Note: the reverse direction is not a walk. A server going from idle to
+> actively used jumps **green → red**, skipping yellow, because a fresh session
+> reports 0 minutes idle.
 
 ## Configuration
 
@@ -67,7 +69,7 @@ invents a false one.
   "BusyMinutes": 5,
   "IdleMinutes": 10,
   "PollSeconds": 30,
-  "NotifyGreenToYellow": false,
+  "NotifyRedToYellow": false,
   "NotifyYellowToGreen": false
 }
 ```

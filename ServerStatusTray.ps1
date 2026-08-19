@@ -40,7 +40,7 @@ $settings = [ordered]@{
     BusyMinutes         = 5
     IdleMinutes         = 10
     PollSeconds         = 30
-    NotifyGreenToYellow = $false
+    NotifyRedToYellow   = $false
     NotifyYellowToGreen = $false
 }
 
@@ -256,17 +256,17 @@ $miHeader = $menu.Items.Add($settings.ServerName)
 $miDetail = $menu.Items.Add('Checking...')
 [void] $menu.Items.Add((New-Object System.Windows.Forms.ToolStripSeparator))
 
-$miNotifyGY = New-Object System.Windows.Forms.ToolStripMenuItem
-$miNotifyGY.Text         = 'Notify on green -> yellow (someone started using it)'
-$miNotifyGY.CheckOnClick = $true
-$miNotifyGY.Checked      = [bool] $settings.NotifyGreenToYellow
+$miNotifyRY = New-Object System.Windows.Forms.ToolStripMenuItem
+$miNotifyRY.Text         = 'Notify on red -> yellow (they stopped using it)'
+$miNotifyRY.CheckOnClick = $true
+$miNotifyRY.Checked      = [bool] $settings.NotifyRedToYellow
 
 $miNotifyYG = New-Object System.Windows.Forms.ToolStripMenuItem
 $miNotifyYG.Text         = 'Notify on yellow -> green (server became free)'
 $miNotifyYG.CheckOnClick = $true
 $miNotifyYG.Checked      = [bool] $settings.NotifyYellowToGreen
 
-[void] $menu.Items.Add($miNotifyGY)
+[void] $menu.Items.Add($miNotifyRY)
 [void] $menu.Items.Add($miNotifyYG)
 [void] $menu.Items.Add((New-Object System.Windows.Forms.ToolStripSeparator))
 
@@ -285,7 +285,7 @@ $notify.Visible          = $true
 
 # Handlers are attached after Checked is seeded so loading the saved settings
 # does not itself trigger a save.
-$miNotifyGY.Add_CheckedChanged({ $settings.NotifyGreenToYellow = $miNotifyGY.Checked; Save-Settings })
+$miNotifyRY.Add_CheckedChanged({ $settings.NotifyRedToYellow = $miNotifyRY.Checked; Save-Settings })
 $miNotifyYG.Add_CheckedChanged({ $settings.NotifyYellowToGreen = $miNotifyYG.Checked; Save-Settings })
 $miRefresh.Add_Click({ $sync.ForceRefresh = $true })
 $miExit.Add_Click({ [System.Windows.Forms.Application]::ExitThread() })
@@ -333,8 +333,8 @@ $timer.Add_Tick({
 
     if ($status -ne 'unknown') {
         if ($lastKnown -and $lastKnown -ne $status) {
-            if ($lastKnown -eq 'free' -and $status -eq 'idle-soon' -and $settings.NotifyGreenToYellow) {
-                Show-Balloon "$($sync.Server) is no longer idle" $sync.Detail
+            if ($lastKnown -eq 'busy' -and $status -eq 'idle-soon' -and $settings.NotifyRedToYellow) {
+                Show-Balloon "$($sync.Server) may be freeing up" $sync.Detail
             }
             elseif ($lastKnown -eq 'idle-soon' -and $status -eq 'free' -and $settings.NotifyYellowToGreen) {
                 Show-Balloon "$($sync.Server) is now free" $sync.Detail
